@@ -1,4 +1,21 @@
 
+class RuleList(object):
+    rules = {}
+    
+    @classmethod
+    def add(cls, rule):
+        name = rule.name
+        cls.rules[name] = rule
+
+    @classmethod
+    def save_rules(cls):
+        pass
+
+    @classmethod
+    def load_rules(cls):
+        pass
+
+
 
 class Rule(object):
 
