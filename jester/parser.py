@@ -4,6 +4,13 @@ from pyparsing import Word, alphas, nums, alphanums, \
         Keyword, LineEnd, Optional, oneOf, LineStart, \
         Combine
 
+class ShowRules(object): pass
+
+class DeleteRule(object):
+    def __init__(self, rule_name):
+        self.rule_name = rule_name
+
+
 class Parser(object):
 
     # keywords
@@ -17,11 +24,14 @@ class Parser(object):
     show = Keyword('show', caseless=True)
     rules = Keyword('rules', caseless=True)
     rule = Keyword('rule', caseless=True)
+    delete = Keyword('delete', caseless=True)
     create = Keyword('create', caseless=True)
     rule_name = Word(alphanums + "_-")
 
     create_rule = (create + rule).setResultsName('create_rule')
     create_rule_name = create_rule + rule_name
+
+    delete_rule = (delete + rule).setResultsName('delete_rule') + rule_name
 
     # keywords - predicates
     when = Keyword('when', caseless=True)
@@ -53,7 +63,7 @@ class Parser(object):
 
     ## final
     command = LineStart() + \
-              (rule | raw_award | show_rules) + \
+              (rule | raw_award | show_rules | delete_rule ) + \
               LineEnd()
 
     @classmethod

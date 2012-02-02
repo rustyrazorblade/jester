@@ -41,6 +41,9 @@ class ParserTest(LogTrapTestCase):
         Parser.show_rules.parseString('show rules')
         tree = Parser.parse('show rules')
 
+    def test_delete_rule(self):
+        Parser.parse('delete rule test_rule')
+
 class TimeConverterTest(LogTrapTestCase):
     def test_minutes(self):
         Parser.convert_time_to_seconds('5', 'day')
