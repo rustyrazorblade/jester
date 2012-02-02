@@ -1,0 +1,9 @@
+
+INSTALL
+
+Requirements:
+    pyparsing
+    redis
+    supervisor
+
+
