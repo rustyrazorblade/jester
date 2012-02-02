@@ -20,8 +20,7 @@ class Parser(object):
     create = Keyword('create', caseless=True)
     rule_name = Word(alphanums + "_-")
 
-    create_rule = create + rule
-    create_rule.setResultsName('create_rule')
+    create_rule = (create + rule).setResultsName('create_rule')
     create_rule_name = create_rule + rule_name
 
     # keywords - predicates
@@ -50,7 +49,7 @@ class Parser(object):
     raw_award = award + points_or_badge + to.suppress() + userid('userid')
 
     # shw rules
-    show_rules = Combine( show + rules )('show_rules')
+    show_rules = (show + rules).setResultsName('show_rules')
 
     ## final
     command = LineStart() + \
@@ -62,6 +61,18 @@ class Parser(object):
         """docstring for parse"""
         tmp = cls.command.parseString(s)
         return tmp
+
+    @classmethod
+    def convert_time_to_seconds(cls, num, timeframe):
+        if timeframe[-1] == 's':
+            timeframe = timeframe[:-1]
+        
+        src = { 'second': 1 }
+        src['minute'] = src['second'] * 60
+        src['hour'] = src['minute'] * 60
+        src['day'] = src['hour'] * 24
+        src['week'] = src['day'] * 7
+
 
 
 
