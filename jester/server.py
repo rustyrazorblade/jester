@@ -4,6 +4,7 @@ from tornado.ioloop import IOLoop
 #from tornado.iostream import IOStream
 import json
 from logging import info
+from jester.parser import *
 
 class JesterServer(TCPServer):
     def handle_stream(self, stream, address):
@@ -19,8 +20,16 @@ class Connection(object):
     def read_line( self, data ):
         info(  "received {0}".format(data) )
         tmp = {'result':'ok'}
+        try:
+            result = Parser.parse(data)
+            info(result)
+            tmp = {'result':'ok'}
+        except Exception as e:
+            tmp = {'result':'fail'}
+            tmp['message'] = e.message
+            print e
+        
         tmp = json.dumps(tmp) + "\n"
-
         self.stream.write(tmp, self.finished_writing)
 
     def finished_writing(self):
