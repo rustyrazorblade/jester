@@ -4,12 +4,33 @@ from pyparsing import Word, alphas, nums, alphanums, \
         Keyword, LineEnd, Optional, oneOf, LineStart, \
         Combine
 
+# these are all actions that can be taken
 class ShowRules(object): pass
 
 class DeleteRule(object):
     def __init__(self, rule_name):
         self.rule_name = rule_name
 
+class PointsAward(object):
+    def __init__(self, user, points):
+        self.user = user
+        self.points = points
+
+class BadgeAward(object):
+    def __init__(self, user, badge):
+        self.user = user
+        self.badge = badge
+
+class Event(object):
+    def __init__(self, user, event):
+        self.user = user
+        self.event = event
+
+class CreateRule(object):
+    def __init__(self, rule, name, event):
+        self.rule = rule
+        self.name = name
+        self.event = event
 
 class Parser(object):
 
@@ -29,9 +50,9 @@ class Parser(object):
     rule_name = Word(alphanums + "_-")
 
     create_rule = (create + rule).setResultsName('create_rule')
-    create_rule_name = create_rule + rule_name
+    create_rule_name = create_rule + rule_name('rule_name')
 
-    delete_rule = (delete + rule).setResultsName('delete_rule') + rule_name
+    delete_rule = (delete + rule).setResultsName('delete_rule') + rule_name('rule_name')
 
     # keywords - predicates
     when = Keyword('when', caseless=True)
@@ -56,7 +77,7 @@ class Parser(object):
     rule = create_rule_name +  on_event + award + points_or_badge \
                 + Optional(predicate)
     # raw award
-    raw_award = award + points_or_badge + to.suppress() + userid('userid')
+    raw_award = award('raw_award') + points_or_badge + to.suppress() + userid('userid')
 
     # shw rules
     show_rules = (show + rules).setResultsName('show_rules')
@@ -69,7 +90,23 @@ class Parser(object):
     @classmethod
     def parse(cls, s):
         """docstring for parse"""
-        tmp = cls.command.parseString(s)
+        tmp = cls.command.parseString(s).asDict()
+        if "delete_rule" in tmp:
+            return DeleteRule(tmp['rule_name'])
+        if "show_rules" in tmp:
+            return ShowRules()
+        if "raw_award" in tmp and "points" in tmp:
+            return PointsAward( tmp['userid'], tmp['points'] )
+        if "raw_award" in tmp and "badge" in tmp:
+            return BadgeAward( tmp['userid'], tmp['badge'] )
+        if "create_rule" in tmp:
+            print tmp
+            name = tmp.get('rule_name')
+            event = tmp['on_event']
+            
+            return CreateRule(s, name, event)
+
+        print tmp
         return tmp
 
     @classmethod

@@ -1,4 +1,6 @@
 
+class RuleDoesNotExistException(Exception): pass
+
 class RuleList(object):
     rules = {}
     
@@ -14,6 +16,14 @@ class RuleList(object):
     @classmethod
     def load_rules(cls):
         pass
+    
+    @classmethod
+    def delete_rule(cls, rule):
+        try:
+            del cls.rules[rule]
+        except:
+            raise RuleDoesNotExistException
+
 
 
 

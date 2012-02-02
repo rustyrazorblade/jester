@@ -2,7 +2,7 @@ import ipdb
 
 from logging import info
 from tornado.testing import LogTrapTestCase
-from jester.parser import Parser
+from jester.parser import *
 
 class ParserTest(LogTrapTestCase):
 
@@ -17,7 +17,7 @@ class ParserTest(LogTrapTestCase):
 
         for s in t:
             tree = Parser.parse( s )
-            info(  tree.asDict() )
+            info(  tree )
             #print tree
 
     def test_partial_predicates(self):
@@ -33,16 +33,24 @@ class ParserTest(LogTrapTestCase):
             #print tree.asDict()
 
     def test_raw_award(self):
-        Parser.parse("award 90 points to 105")
-        tree = Parser.parse("award 90 points to jhaddad")
-        tree = Parser.parse("award badge bacon_lover to jhaddad")
+        tmp = Parser.parse("award 90 points to 105")
+        assert type(tmp) is PointsAward
+
+        tmp = Parser.parse("award 90 points to jhaddad")
+        assert type(tmp) is PointsAward
+
+        tmp = Parser.parse("award badge bacon_lover to jhaddad")
+        assert type(tmp) is BadgeAward
+
 
     def test_show_rules(self):
         Parser.show_rules.parseString('show rules')
-        tree = Parser.parse('show rules')
+        tmp = Parser.parse('show rules')
+        assert type(tmp) is ShowRules
 
     def test_delete_rule(self):
-        Parser.parse('delete rule test_rule')
+        tmp = Parser.parse('delete rule test_rule')
+        assert type(tmp) is DeleteRule
 
 class TimeConverterTest(LogTrapTestCase):
     def test_minutes(self):
