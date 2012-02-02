@@ -38,6 +38,19 @@ class CreateRule(object):
         self.min_occurences = min_occurences
         self.time = time
 
+class CreatePointsRule(CreateRule):
+    """docstring for CreatePointsRule"""
+    def __init__(self, rule, name, event, min_occurences, time, points):
+        super(CreatePointsRule, self).__init__(rule, name, event, min_occurences, time)
+        self.points = points
+
+class CreateBadgeRule(CreateRule):
+    """docstring for CreateBadgeRule"""
+    def __init__(self, rule, name, event, min_occurences, time, badge):
+        super(CreateBadgeRule, self).__init__(rule, name, event, min_occurences, time, )
+        self.badge = badge
+        
+        
 class Parser(object):
 
     # keywords
