@@ -27,10 +27,16 @@ class Event(object):
         self.event = event
 
 class CreateRule(object):
-    def __init__(self, rule, name, event):
+    def __init__(self, rule, name, event, min_occurences = 0, time = 0):
+        '''
+        rule -> original string rule that came in
+        min_occurences -> when event occurs <min_occurences> times in <time>
+        '''
         self.rule = rule
         self.name = name
         self.event = event
+        self.min_occurences = min_occurences
+        self.time = time
 
 class Parser(object):
 
