@@ -17,6 +17,7 @@ class Connection(object):
         self.stream.read_until('\n', self.read_line)
 
     def read_line( self, data ):
+        info(  "received {0}".format(data) )
         tmp = {'result':'ok'}
         tmp = json.dumps(tmp) + "\n"
 
