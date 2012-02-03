@@ -1,8 +1,11 @@
 
+from redis import Redis
+from logging import info
 
 from pyparsing import Word, alphas, nums, alphanums, \
-        Keyword, LineEnd, Optional, oneOf, LineStart, \
-        Combine
+        Keyword, LineEnd, Optional, oneOf, LineStart
+
+class ParseException(Exception): pass
 
 # these are all actions that can be taken
 class ShowRules(object): pass
@@ -25,30 +28,6 @@ class Event(object):
     def __init__(self, user, event):
         self.user = user
         self.event = event
-
-class CreateRule(object):
-    def __init__(self, rule, name, event, min_occurences = 0, time = 0):
-        '''
-        rule -> original string rule that came in
-        min_occurences -> when event occurs <min_occurences> times in <time>
-        '''
-        self.rule = rule
-        self.name = name
-        self.event = event
-        self.min_occurences = min_occurences
-        self.time = time
-
-class CreatePointsRule(CreateRule):
-    """docstring for CreatePointsRule"""
-    def __init__(self, rule, name, event, min_occurences, time, points):
-        super(CreatePointsRule, self).__init__(rule, name, event, min_occurences, time)
-        self.points = points
-
-class CreateBadgeRule(CreateRule):
-    """docstring for CreateBadgeRule"""
-    def __init__(self, rule, name, event, min_occurences, time, badge):
-        super(CreateBadgeRule, self).__init__(rule, name, event, min_occurences, time, )
-        self.badge = badge
         
         
 class Parser(object):
@@ -119,30 +98,100 @@ class Parser(object):
         if "raw_award" in tmp and "badge" in tmp:
             return BadgeAward( tmp['userid'], tmp['badge'] )
         if "create_rule" in tmp:
-            print tmp
             name = tmp.get('rule_name')
             event = tmp['on_event']
-            
-            return CreateRule(s, name, event)
+            timeframe = tmp.get('timeframe')
+            timeframe_num = tmp.get('timeframe_num',0)
+            min_occurances = tmp.get('min_occurances', 0)
+            time = cls.convert_time_to_seconds( timeframe_num, timeframe )
 
-        print tmp
-        return tmp
+            if 'badge' in tmp:
+                return BadgeRule(s, name, event, min_occurances, time, tmp['badge'])
+            elif 'points' in tmp:
+                return PointsRule(s, name, event, min_occurances, time, tmp['points'])
+            
+        raise ParseException(s)
 
     @classmethod
     def convert_time_to_seconds(cls, num, timeframe):
-        if timeframe[-1] == 's':
-            timeframe = timeframe[:-1]
-        
-        src = { 'second': 1 }
-        src['minute'] = src['second'] * 60
-        src['hour'] = src['minute'] * 60
-        src['day'] = src['hour'] * 24
-        src['week'] = src['day'] * 7
+        try:
+            num = int(num)
+            if timeframe[-1] == 's':
+                timeframe = timeframe[:-1]
+            src = { 'second': 1 }
+            src['minute'] = src['second'] * 60
+            src['hour'] = src['minute'] * 60
+            src['day'] = src['hour'] * 24
+            src['week'] = src['day'] * 7
+            src['year'] = src['day'] * 365
+            
+            return num * src[timeframe]
+
+        except:
+            return 0
 
 
 
 
+class RuleDoesNotExistException(Exception): pass
 
+class RuleList(object):
+    rules = {}
+    redis = Redis()
+    rules_key = 'active_rules'
+    rule_prefix = "rule:"
+
+    @classmethod
+    def add(cls, rule):
+        name = rule.name
+        cls.rules[name] = rule
+
+        # save to redis
+        rkey = cls.rule_prefix + name
+        cls.redis.sadd(cls.rules_key, rkey)  
+        cls.redis.set( rkey, rule.rule )
+
+    @classmethod
+    def load_rules(cls):
+        rules = cls.redis.smembers(cls.rules_key)
+        for r in rules:
+            tmp = cls.redis.get(r)
+            info("loading rule {0} from redis: {1}".format(r, tmp))
+            rule = Parser.parse(tmp)
+            name = rule.name
+            cls.rules[name] = rule
+    
+    @classmethod
+    def delete_rule(cls, rule):
+        try:
+            del cls.rules[rule]
+        except:
+            raise RuleDoesNotExistException
+
+
+class Rule(object):
+    def __init__(self, rule, name, event, min_occurences = 0, time = 0):
+        '''
+        rule -> original string rule that came in
+        min_occurences -> when event occurs <min_occurences> times in <time>
+        '''
+        self.rule = rule
+        self.name = name
+        self.event = event
+        self.min_occurences = min_occurences
+        self.time = time
+
+class PointsRule(Rule):
+    """docstring for CreatePointsRule"""
+    def __init__(self, rule, name, event, min_occurences, time, points):
+        super(PointsRule, self).__init__(rule, name, event, min_occurences, time)
+        self.points = points
+
+class BadgeRule(Rule):
+    """docstring for CreateBadgeRule"""
+    def __init__(self, rule, name, event, min_occurences, time, badge):
+        super(BadgeRule, self).__init__(rule, name, event, min_occurences, time, )
+        self.badge = badge
 
 
 

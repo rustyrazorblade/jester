@@ -16,6 +16,7 @@ class ParserTest(LogTrapTestCase):
              'create rule blah3 on eat_bacon award badge fatass']
 
         for s in t:
+            info( "parsing " + s )
             tree = Parser.parse( s )
             info(  tree )
             #print tree
@@ -54,4 +55,8 @@ class ParserTest(LogTrapTestCase):
 
 class TimeConverterTest(LogTrapTestCase):
     def test_minutes(self):
-        Parser.convert_time_to_seconds('5', 'day')
+        result = Parser.convert_time_to_seconds('5', 'minutes')
+        assert result == 300
+
+    def test_hours(self):
+        assert 86400 == Parser.convert_time_to_seconds(1,'day')
