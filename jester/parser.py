@@ -9,6 +9,13 @@ class ParseException(Exception): pass
 
 
 # these are all actions that can be taken
+class NotImplementedException(Exception): pass
+
+# all the parsed inputs should inherit from this
+class BaseInput(object):
+    def evaluate(self):
+        raise NotImplementedException()
+
 class ShowRules(object): pass
 
 class DeleteRule(object):
@@ -182,6 +189,9 @@ class Rule(object):
         self.event = event
         self.min_occurences = min_occurences
         self.time = time
+
+    def evaluate(self):
+        RuleList.add(self)
 
 class PointsRule(Rule):
     """docstring for CreatePointsRule"""

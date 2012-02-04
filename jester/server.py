@@ -22,6 +22,7 @@ class Connection(object):
         tmp = {'result':'ok'}
         try:
             result = Parser.parse(data)
+            result.evaluate()
             info(result)
             tmp = {'result':'ok'}
         except Exception as e:

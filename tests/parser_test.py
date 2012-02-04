@@ -60,3 +60,11 @@ class TimeConverterTest(LogTrapTestCase):
 
     def test_hours(self):
         assert 86400 == Parser.convert_time_to_seconds(1,'day')
+
+class ShowRulesEvaluateTest(LogTrapTestCase):
+    pass
+
+class CreateRuleEvaluate(LogTrapTestCase):
+    s = Parser.parse("create rule blah on game_play award 5 points")
+    s.evaluate()
+
