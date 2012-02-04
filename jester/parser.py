@@ -192,6 +192,7 @@ class Rule(object):
 
     def evaluate(self):
         RuleList.add(self)
+        return {'result':'ok'}
 
 class PointsRule(Rule):
     """docstring for CreatePointsRule"""

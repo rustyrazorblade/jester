@@ -22,9 +22,9 @@ class Connection(object):
         tmp = {'result':'ok'}
         try:
             result = Parser.parse(data)
-            result.evaluate()
-            info(result)
-            tmp = {'result':'ok'}
+            tmp = result.evaluate()
+            #info(result)
+            #tmp = {'result':'ok'}
         except Exception as e:
             tmp = {'result':'fail'}
             tmp['message'] = e.message
