@@ -16,7 +16,13 @@ class BaseInput(object):
     def evaluate(self):
         raise NotImplementedException()
 
-class ShowRules(object): pass
+class ShowRules(BaseInput): 
+    def evaluate(self):
+        result = {}
+        for r in RuleList.rules:
+            result[r] = RuleList.rules[r].rule.strip()
+
+        return result
 
 class DeleteRule(object):
     def __init__(self, rule_name):

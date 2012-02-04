@@ -18,6 +18,7 @@ class Connection(object):
         self.stream.read_until('\n', self.read_line)
 
     def read_line( self, data ):
+        data = data.strip()
         info(  "received {0}".format(data) )
         tmp = {'result':'ok'}
         try:
@@ -38,6 +39,7 @@ class Connection(object):
 
 
 def run():
+    RuleList.load_rules()
     server = JesterServer()
     server.listen(8888)
     IOLoop.instance().start()
