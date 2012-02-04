@@ -7,6 +7,7 @@ from pyparsing import Word, alphas, nums, alphanums, \
 
 class ParseException(Exception): pass
 
+
 # these are all actions that can be taken
 class ShowRules(object): pass
 
@@ -165,8 +166,9 @@ class RuleList(object):
     def delete_rule(cls, rule):
         try:
             del cls.rules[rule]
+            cls.redis.srem(cls.rules_key, cls.rule_prefix + rule)
         except:
-            raise RuleDoesNotExistException
+            raise RuleDoesNotExistException(rule)
 
 
 class Rule(object):
