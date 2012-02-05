@@ -27,6 +27,9 @@ class ShowRules(BaseInput):
 class DeleteRule(object):
     def __init__(self, rule_name):
         self.rule_name = rule_name
+    def evaluate(self):
+        RuleList.delete_rule(self.rule_name)
+        return {'result':'deleted'}
 
 class PointsAward(object):
     def __init__(self, user, points):
