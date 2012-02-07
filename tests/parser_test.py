@@ -36,6 +36,9 @@ class ParserTest(LogTrapTestCase):
     def test_raw_award(self):
         tmp = Parser.parse("award 90 points to 105")
         assert type(tmp) is PointsAward
+        assert tmp.points == 90
+        assert tmp.user == "105"
+        tmp.evaluate()
 
         tmp = Parser.parse("award 90 points to jhaddad")
         assert type(tmp) is PointsAward

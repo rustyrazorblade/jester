@@ -1,6 +1,8 @@
 
 from redis import Redis
 from logging import info
+import json
+import time
 
 from pyparsing import Word, alphas, nums, alphanums, \
         Keyword, LineEnd, Optional, oneOf, LineStart
@@ -31,15 +33,44 @@ class DeleteRule(object):
         RuleList.delete_rule(self.rule_name)
         return {'result':'deleted'}
 
-class PointsAward(object):
-    def __init__(self, user, points):
-        self.user = user
-        self.points = points
+# this the raw points award
+# award 5 points to user 10
+class RawAward(BaseInput):
+    def get_dict_to_save(self):
+        raise NotImplementedException()
 
-class BadgeAward(object):
-    def __init__(self, user, badge):
+    def post_evaluate(self):
+        pass
+
+    def evaluate(self):
+        k = 'user_history:' + self.user
+        tmp = self.get_dict_to_save()
+        tmp['time'] = int(time.time())
+        tmp = json.dumps(tmp)
+        r = get_redis()
+        r.lpush(k, tmp)
+        self.post_evaluate()
+
+class PointsAward(RawAward):
+    def __init__(self, user, points, eventid = None):
+        self.user = user
+        self.points = int(points)
+        self.eventid = eventid
+    def get_dict_to_save(self):
+        return dict(points = self.points)
+    def post_evaluate(self):
+        # update the users total points
+        r = get_redis()
+        r.incr('user_points:' + self.user, self.points)
+
+class BadgeAward(RawAward):
+    def __init__(self, user, badge, eventid = None):
         self.user = user
         self.badge = badge
+        self.eventid = eventid
+
+    def get_dict_to_save(self):
+        return dict(badge=self.badge)
 
 class Event(object):
     def __init__(self, user, event):
@@ -216,4 +247,5 @@ class BadgeRule(Rule):
         self.badge = badge
 
 
-
+def get_redis():
+    return Redis()
