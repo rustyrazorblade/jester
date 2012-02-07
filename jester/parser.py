@@ -46,6 +46,8 @@ class RawAward(BaseInput):
         k = 'user_history:' + self.user
         tmp = self.get_dict_to_save()
         tmp['time'] = int(time.time())
+        if self.eventid:
+            tmp['eventid'] = self.eventid
         tmp = json.dumps(tmp)
         r = get_redis()
         r.lpush(k, tmp)
