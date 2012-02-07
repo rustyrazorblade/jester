@@ -42,9 +42,11 @@ class ParserTest(LogTrapTestCase):
 
         tmp = Parser.parse("award 90 points to jhaddad")
         assert type(tmp) is PointsAward
+        tmp.evaluate()
 
         tmp = Parser.parse("award badge bacon_lover to jhaddad")
         assert type(tmp) is BadgeAward
+        tmp.evaluate()
 
 
     def test_show_rules(self):

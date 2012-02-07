@@ -65,12 +65,16 @@ class PointsAward(RawAward):
 
 class BadgeAward(RawAward):
     def __init__(self, user, badge, eventid = None):
-        self.user = user
-        self.badge = badge
+        self.user = str(user)
+        self.badge = str(badge)
         self.eventid = eventid
 
     def get_dict_to_save(self):
         return dict(badge=self.badge)
+    def post_evaluate(self):
+        r = get_redis()
+        k = 'user_badges:' + self.user
+        r.hincrby(k, self.badge, 1)
 
 class Event(object):
     def __init__(self, user, event):
