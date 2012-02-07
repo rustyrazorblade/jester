@@ -82,10 +82,27 @@ class BadgeAward(RawAward):
         k = 'user_badges:' + self.user
         r.hincrby(k, self.badge, 1)
 
-class Event(object):
+class Event(BaseInput):
     def __init__(self, user, event):
         self.user = user
         self.event = event
+    def evaluate(self):
+        self.save_to_stream()
+    def save_to_stream(self):
+        pass
+
+class EventHistory(BaseInput):
+    def __init__(self, user, page = 1, perpage=50):
+        self.user, page, perpage = user, page, perpage
+    def evaluate(self):
+        return {}
+
+class AwardHistory(BaseInput):
+    def __init__(self, user, page = 1, perpage=50):
+        self.user, page, perpage = user,page, perpage
+    def evaluate(self):
+        return {}
+
         
         
 class Parser(object):
@@ -104,6 +121,11 @@ class Parser(object):
     delete = Keyword('delete', caseless=True)
     create = Keyword('create', caseless=True)
     rule_name = Word(alphanums + "_-")
+    event_name = Word(alphanums + "_-")
+    eval_ = Keyword('eval', caseless=True)
+    for_ = Keyword('for', caseless=True)
+    history = Keyword('history', caseless=True)
+    event = Keyword('event', caseless=True)
 
     create_rule = (create + rule).setResultsName('create_rule')
     create_rule_name = create_rule + rule_name('rule_name')
@@ -123,12 +145,12 @@ class Parser(object):
     award_name = Word(alphanums + "-_")
 
     #predicates
-    predicate = when.suppress() + award_name('predicate_event') + \
+    predicate = when.suppress() + event_name('predicate_event') + \
                 occurs + Word(nums)('min_occurances') + \
                 times + in_ + Word(nums)('timeframe_num') + \
                 timeframe('timeframe')
 
-    on_event = on_ + award_name.setResultsName('on_event') 
+    on_event = on_ + event_name.setResultsName('on_event') 
 
     rule = create_rule_name +  on_event + award + points_or_badge \
                 + Optional(predicate)
@@ -137,10 +159,18 @@ class Parser(object):
 
     # shw rules
     show_rules = (show + rules).setResultsName('show_rules')
+    
+    # push event in: eval <event name> for <user>
+    # example: eval game_play for jhaddad
+    eval_query = eval_('eval') + event_name('event_name') + for_ + userid('userid')
+    
+    # award history for jhaddad
+    award_history = (award + history)('award_history') + for_ + userid('userid')
+    event_history = (event + history)('event_history') + for_ + userid('userid')
 
     ## final
     command = LineStart() + \
-              (rule | raw_award | show_rules | delete_rule ) + \
+              (eval_query | rule | raw_award | award_history | event_history | show_rules | delete_rule ) + \
               LineEnd()
 
     @classmethod
@@ -167,7 +197,14 @@ class Parser(object):
                 return BadgeRule(s, name, event, min_occurances, time, tmp['badge'])
             elif 'points' in tmp:
                 return PointsRule(s, name, event, min_occurances, time, tmp['points'])
-            
+        if "eval" in tmp:
+            return Event(tmp['userid'], tmp['event_name'])
+
+        if "award_history" in tmp:
+            return AwardHistory(tmp['userid'])
+        if "event_history" in tmp:
+            return AwardHistory(tmp['userid'])
+
         raise ParseException(s)
 
     @classmethod

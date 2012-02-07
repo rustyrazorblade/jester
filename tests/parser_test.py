@@ -72,6 +72,25 @@ class ShowRulesEvaluateTest(LogTrapTestCase):
 
 
 class CreateRuleEvaluate(LogTrapTestCase):
-    s = Parser.parse("create rule blah on game_play award 5 points")
-    s.evaluate()
+    def test_evaluate(self):
+        s = Parser.parse("create rule blah on game_play award 5 points")
+        s.evaluate()
 
+class EvalEventTest(LogTrapTestCase):
+    def test_eval(self):
+        test_str = "eval game_play for jhaddad"
+        Parser.eval_query.parseString(test_str)
+        Parser.parse(test_str)
+
+class AwardHistoryTest(LogTrapTestCase):
+    def test_award_history(self):
+        test_str = "award history for jhaddad"
+        Parser.award_history.parseString(test_str)
+        Parser.parse(test_str)
+
+
+class EventHistoryTest(LogTrapTestCase):
+    def test_award_history(self):
+        test_str = "event history for jhaddad"
+        Parser.event_history.parseString(test_str)
+        Parser.parse(test_str)
