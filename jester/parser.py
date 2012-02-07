@@ -51,7 +51,8 @@ class RawAward(BaseInput):
         tmp = json.dumps(tmp)
         r = get_redis()
         r.lpush(k, tmp)
-        self.post_evaluate()
+        result = self.post_evaluate()
+        return result
 
 class PointsAward(RawAward):
     def __init__(self, user, points, eventid = None):
@@ -63,7 +64,9 @@ class PointsAward(RawAward):
     def post_evaluate(self):
         # update the users total points
         r = get_redis()
-        r.incr('user_points:' + self.user, self.points)
+        k = 'user_points:' + self.user
+        result = r.incr(k, self.points)
+        return dict(points=result)
 
 class BadgeAward(RawAward):
     def __init__(self, user, badge, eventid = None):
@@ -73,6 +76,7 @@ class BadgeAward(RawAward):
 
     def get_dict_to_save(self):
         return dict(badge=self.badge)
+
     def post_evaluate(self):
         r = get_redis()
         k = 'user_badges:' + self.user
