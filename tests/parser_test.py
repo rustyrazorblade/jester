@@ -1,4 +1,3 @@
-import ipdb
 
 from logging import info
 from tornado.testing import LogTrapTestCase
