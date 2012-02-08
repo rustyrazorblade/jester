@@ -1,3 +1,4 @@
+import ipdb
 
 from redis import Redis
 from logging import info
@@ -99,13 +100,37 @@ class Event(BaseInput):
         store a {timestamp, [awards]}
 
         '''
-        for r in RuleList.rules.iteritems():
-            pass
+        applied = []
+        for (name,r) in RuleList.rules.iteritems():
+            if self.check(r) is True:
+                applied.append(self.apply(r))
 
-        self.save_to_stream()
-    def save_to_stream(self):
+        self.save_to_stream(applied)
+
+    # is a rule
+    def check(self, r):
+        assert isinstance(r, Rule) 
+        redis = get_redis()
+        rows = redis.lrange(self.event_stream, 0, r.min_occurences)
+        now = int(time.time())
+        min_acceptable_time = now - r.time
+        if len(rows) < r.min_occurences - 1:
+            return False
+        for tmp in rows:
+            i = json.loads(tmp)
+            if i['time'] < min_acceptable_time:
+                return False
+        
+        return True
+    
+    def apply(self, rule_list):
+        return
+
+    def save_to_stream(self, awards):
         r = get_redis()
-        r.lpush(self.event_stream, int(time.time()))
+        data = {"time":int(time.time())}
+        data = json.dumps(data)
+        r.lpush(self.event_stream,data)
 
 class EventHistory(BaseInput):
     def __init__(self, user, page = 1, perpage=50):
@@ -206,7 +231,7 @@ class Parser(object):
             event = tmp['on_event']
             timeframe = tmp.get('timeframe')
             timeframe_num = tmp.get('timeframe_num',0)
-            min_occurances = tmp.get('min_occurances', 0)
+            min_occurances = tmp.get('min_occurances', 1)
             time = cls.convert_time_to_seconds( timeframe_num, timeframe )
 
             if 'badge' in tmp:

@@ -95,3 +95,4 @@ class EventHistoryTest(LogTrapTestCase):
         test_str = "event history for jhaddad"
         Parser.event_history.parseString(test_str)
         Parser.parse(test_str)
+
