@@ -11,12 +11,12 @@ for r in rules:
 
 def create_events( userid, event, num ):
     for i in range(num):
-        pass
+        fp.write("eval {0} for {1}\n".format(event,userid))
 
 
 
 for i in events:
-    pass
+    create_events('jhaddad', 'game_play', 10)
 
 
 

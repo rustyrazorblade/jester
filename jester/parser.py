@@ -114,6 +114,7 @@ class Event(BaseInput):
         rows = redis.lrange(self.event_stream, 0, r.min_occurences)
         now = int(time.time())
         min_acceptable_time = now - r.time
+        ipdb.set_trace() ############################## Breakpoint ##############################
         if len(rows) < r.min_occurences - 1:
             return False
         for tmp in rows:
@@ -315,7 +316,7 @@ class Rule(object):
         self.rule = rule
         self.name = name
         self.event = event
-        self.min_occurences = min_occurences
+        self.min_occurences = int(min_occurences)
         self.time = time
 
     def evaluate(self):

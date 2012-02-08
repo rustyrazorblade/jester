@@ -1,2 +1,12 @@
 create rule game_play_points on game_play award 10 points
 create rule game_play_award on game_play award badge big_player when game_play occurs 10 times in 1 hour
+eval game_play for jhaddad
+eval game_play for jhaddad
+eval game_play for jhaddad
+eval game_play for jhaddad
+eval game_play for jhaddad
+eval game_play for jhaddad
+eval game_play for jhaddad
+eval game_play for jhaddad
+eval game_play for jhaddad
+eval game_play for jhaddad
