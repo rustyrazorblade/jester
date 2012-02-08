@@ -18,12 +18,16 @@ while True:
 
     if results:
         print "Loading from " + results[0]
+        with open(results[0]) as f:
+            for line in f:
+                send_and_print(line)
     else:
-        s.send(input + "\n")
-        result = s.recv(4096)
-        print result
-
-
+        send_and_print(input)
+        
+def send_and_print(input):
+    s.send(input + "\n")
+    result = s.recv(4096)
+    print result
 
 
 
