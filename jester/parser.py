@@ -86,10 +86,26 @@ class Event(BaseInput):
     def __init__(self, user, event):
         self.user = user
         self.event = event
+        self.event_stream = 'event_stream:{0}:{1}'.format(user, event)
+
     def evaluate(self):
+        '''
+        look at each rule
+        if it applies to the event
+            if x > 1:
+                slice the event stream at x-1 
+            else 
+                give award
+        store a {timestamp, [awards]}
+
+        '''
+        for r in RuleList.rules.iteritems():
+            pass
+
         self.save_to_stream()
     def save_to_stream(self):
-        pass
+        r = get_redis()
+        r.lpush(self.event_stream, int(time.time()))
 
 class EventHistory(BaseInput):
     def __init__(self, user, page = 1, perpage=50):

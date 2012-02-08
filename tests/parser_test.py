@@ -80,7 +80,8 @@ class EvalEventTest(LogTrapTestCase):
     def test_eval(self):
         test_str = "eval game_play for jhaddad"
         Parser.eval_query.parseString(test_str)
-        Parser.parse(test_str)
+        tmp = Parser.parse(test_str)
+        tmp.evaluate()
 
 class AwardHistoryTest(LogTrapTestCase):
     def test_award_history(self):
