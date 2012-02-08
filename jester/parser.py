@@ -8,7 +8,7 @@ import time
 from pyparsing import Word, alphas, nums, alphanums, \
         Keyword, LineEnd, Optional, oneOf, LineStart
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO)
 
 class ParseException(Exception): pass
 
@@ -96,6 +96,7 @@ class Event(BaseInput):
         self.user = user
         self.event = event
         self.event_stream = 'event_stream:{0}:{1}'.format(user, event)
+        self.awards = []
 
     def evaluate(self):
         '''
@@ -108,13 +109,15 @@ class Event(BaseInput):
         store a {timestamp, [awards]}
 
         '''
-        applied = []
         for (name,r) in RuleList.rules.iteritems():
             if self.check(r) is True:
                 info("Rule match: {0} on event {1}".format(name, self.event))
-                applied.append(self.apply(r))
+                tmp = r.apply(self.user)
+                self.awards.append(tmp)
 
-        self.save_to_stream(applied)
+        self.save_to_stream()
+        
+        return {'awards': self.awards }
 
     # is a rule
     def check(self, r):
@@ -131,13 +134,11 @@ class Event(BaseInput):
                 return False
         
         return True
-    
-    def apply(self, rule_list):
-        return
 
-    def save_to_stream(self, awards):
+    def save_to_stream(self):
         r = get_redis()
         data = {"time":int(time.time())}
+        data['awards'] = self.awards
         data = json.dumps(data)
         r.lpush(self.event_stream,data)
 
@@ -278,9 +279,6 @@ class Parser(object):
         except:
             return 0
 
-
-
-
 class RuleDoesNotExistException(Exception): pass
 
 class RuleList(object):
@@ -333,18 +331,26 @@ class Rule(object):
     def evaluate(self):
         RuleList.add(self)
         return {'result':'ok'}
+    def apply(self, user):
+        raise NotImplementedException()
 
 class PointsRule(Rule):
     """docstring for CreatePointsRule"""
     def __init__(self, rule, name, event, min_occurences, time, points):
         super(PointsRule, self).__init__(rule, name, event, min_occurences, time)
         self.points = points
+    def apply(self, user):
+        tmp = PointsAward(user, self.points)
+        return {'points':tmp.points}
 
 class BadgeRule(Rule):
     """docstring for CreateBadgeRule"""
     def __init__(self, rule, name, event, min_occurences, time, badge):
         super(BadgeRule, self).__init__(rule, name, event, min_occurences, time, )
         self.badge = badge
+    def apply(self,user):
+        tmp = BadgeAward(user, self.badge)
+        return {'badge':tmp.badge}
 
 
 def get_redis():
