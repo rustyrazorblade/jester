@@ -1,12 +1,14 @@
-import ipdb
 
 from redis import Redis
 from logging import info
+import logging
 import json
 import time
 
 from pyparsing import Word, alphas, nums, alphanums, \
         Keyword, LineEnd, Optional, oneOf, LineStart
+
+logging.basicConfig(level=logging.WARNING)
 
 class ParseException(Exception): pass
 
@@ -33,6 +35,12 @@ class DeleteRule(object):
     def evaluate(self):
         RuleList.delete_rule(self.rule_name)
         return {'result':'deleted'}
+
+class FlushDB(BaseInput):
+    def evaluate(self):
+        r = get_redis()
+        r.flushdb()
+        return {'flushed':'ok'}
 
 # this the raw points award
 # award 5 points to user 10
@@ -103,6 +111,7 @@ class Event(BaseInput):
         applied = []
         for (name,r) in RuleList.rules.iteritems():
             if self.check(r) is True:
+                info("Rule match: {0} on event {1}".format(name, self.event))
                 applied.append(self.apply(r))
 
         self.save_to_stream(applied)
@@ -114,7 +123,6 @@ class Event(BaseInput):
         rows = redis.lrange(self.event_stream, 0, r.min_occurences)
         now = int(time.time())
         min_acceptable_time = now - r.time
-        ipdb.set_trace() ############################## Breakpoint ##############################
         if len(rows) < r.min_occurences - 1:
             return False
         for tmp in rows:
@@ -168,6 +176,7 @@ class Parser(object):
     for_ = Keyword('for', caseless=True)
     history = Keyword('history', caseless=True)
     event = Keyword('event', caseless=True)
+    flushdb = Keyword('flushdb', caseless=True)
 
     create_rule = (create + rule).setResultsName('create_rule')
     create_rule_name = create_rule + rule_name('rule_name')
@@ -212,7 +221,7 @@ class Parser(object):
 
     ## final
     command = LineStart() + \
-              (eval_query | rule | raw_award | award_history | event_history | show_rules | delete_rule ) + \
+              (eval_query | rule | raw_award | award_history | event_history | show_rules | delete_rule | flushdb('flushdb') ) + \
               LineEnd()
 
     @classmethod
@@ -246,6 +255,8 @@ class Parser(object):
             return AwardHistory(tmp['userid'])
         if "event_history" in tmp:
             return AwardHistory(tmp['userid'])
+        if tmp == {'flushdb': 'flushdb'}:
+            return FlushDB()
 
         raise ParseException(s)
 

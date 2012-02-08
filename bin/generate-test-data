@@ -16,7 +16,7 @@ def create_events( userid, event, num ):
 
 
 for i in events:
-    create_events('jhaddad', 'game_play', 10)
+    create_events('jhaddad', 'game_play', 1000)
 
 
 
