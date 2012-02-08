@@ -2,6 +2,7 @@
 
 import socket
 import re
+import sys
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('localhost', 8888))
@@ -10,22 +11,31 @@ input = ""
 c = re.compile('source (.*)')
 
 def send_and_print(input):
+    input = input.strip()
     s.send(input + "\n")
     result = s.recv(4096)
     print result
 
+def source(filename):
+    print "Loading from " + filename
+    with open(filename) as f:
+        for line in f:
+            print line
+            send_and_print(line)
+
+if len(sys.argv) > 1:
+    source( sys.argv[1] )
+    sys.exit()
+
 while True:
     input = raw_input("> ")
-    if input == 'quit':
+    if input in ['quit','exit']:
         break
 
     results = c.findall(input)    
 
     if results:
-        print "Loading from " + results[0]
-        with open(results[0]) as f:
-            for line in f:
-                send_and_print(line)
+        source(results[0])
     else:
         send_and_print(input)
         

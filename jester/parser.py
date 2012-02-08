@@ -177,7 +177,7 @@ class Parser(object):
     when = Keyword('when', caseless=True)
     occurs = Keyword('occurs', caseless=True)
     times = oneOf('times time', caseless=True)
-    timeframe = oneOf("day days week weeks month months year years", caseless=True)
+    timeframe = oneOf("minute minutes hour hours day days week weeks month months year years", caseless=True)
 
     # award 
     award_points = Word(nums)('points') + points.suppress()

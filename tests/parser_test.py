@@ -28,7 +28,8 @@ class ParserTest(LogTrapTestCase):
     def test_predicates(self):
         t = ['create rule big_player on game_play award badge big_player when game_play occurs 3 times in 1 day',
              'create rule game_play_points on game_play award 6 points  when game_play occurs 3 times in 1 day',
-             'create rule kick_friend_face on kick_friend_in_face award badge face_kicker when kick_friend_in_face occurs 10 times in 1 year']
+             'create rule kick_friend_face on kick_friend_in_face award badge face_kicker when kick_friend_in_face occurs 10 times in 1 year',
+             'create rule game_play_award on game_play award badge big_player when game_play occurs 10 times in 1 hour']
         for s in t:
             tree = Parser.parse( s )
             #print tree.asDict()
