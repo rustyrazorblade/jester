@@ -9,6 +9,11 @@ s.connect(('localhost', 8888))
 input = ""
 c = re.compile('source (.*)')
 
+def send_and_print(input):
+    s.send(input + "\n")
+    result = s.recv(4096)
+    print result
+
 while True:
     input = raw_input("> ")
     if input == 'quit':
@@ -24,10 +29,7 @@ while True:
     else:
         send_and_print(input)
         
-def send_and_print(input):
-    s.send(input + "\n")
-    result = s.recv(4096)
-    print result
+
 
 
 
