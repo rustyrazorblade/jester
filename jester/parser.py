@@ -139,7 +139,7 @@ class Event(BaseInput):
         now = int(time.time())
         min_acceptable_time = now - r.time
         if len(rows) < r.min_occurences - 1:
-            info("Failed to meet min_occurances of {0}".format(r.min_occurances))
+            info("Failed to meet min_occurences of {0}".format(r.min_occurences))
             return False
         for tmp in rows:
             i = json.loads(tmp)
@@ -211,7 +211,7 @@ class Parser(object):
 
     #predicates
     predicate = when.suppress() + event_name('predicate_event') + \
-                occurs + Word(nums)('min_occurances') + \
+                occurs + Word(nums)('min_occurences') + \
                 times + in_ + Word(nums)('timeframe_num') + \
                 timeframe('timeframe')
 
@@ -255,13 +255,13 @@ class Parser(object):
             event = tmp['on_event']
             timeframe = tmp.get('timeframe')
             timeframe_num = tmp.get('timeframe_num',0)
-            min_occurances = tmp.get('min_occurances', 1)
+            min_occurrences = tmp.get('min_occurrences', 1)
             time = cls.convert_time_to_seconds( timeframe_num, timeframe )
 
             if 'badge' in tmp:
-                return BadgeRule(s, name, event, min_occurances, time, tmp['badge'])
+                return BadgeRule(s, name, event, min_occurrences, time, tmp['badge'])
             elif 'points' in tmp:
-                return PointsRule(s, name, event, min_occurances, time, tmp['points'])
+                return PointsRule(s, name, event, min_occurrences, time, tmp['points'])
         if "eval" in tmp:
             return Event(tmp['userid'], tmp['event_name'])
 
