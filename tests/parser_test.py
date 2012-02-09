@@ -96,3 +96,7 @@ class EventHistoryTest(LogTrapTestCase):
         Parser.event_history.parseString(test_str)
         Parser.parse(test_str)
 
+class RuleEvaluationTest(LogTrapTestCase):
+    def setUp(self):
+        FlushDB().evaluate()
+    

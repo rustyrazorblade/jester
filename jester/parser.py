@@ -29,7 +29,7 @@ class ShowRules(BaseInput):
 
         return result
 
-class DeleteRule(object):
+class DeleteRule(BaseInput):
     def __init__(self, rule_name):
         self.rule_name = rule_name
     def evaluate(self):
@@ -40,6 +40,7 @@ class FlushDB(BaseInput):
     def evaluate(self):
         r = get_redis()
         r.flushdb()
+        RuleList.rules = {}
         return {'flushed':'ok'}
 
 # this the raw points award
@@ -133,7 +134,8 @@ class Event(BaseInput):
 
         redis = get_redis()
         
-        rows = redis.lrange(self.event_stream, 0, r.min_occurences )
+        # we pull 1 less than the min because we haven't pushed this event into the stream yet
+        rows = redis.lrange(self.event_stream, 0, r.min_occurences - 1)
         now = int(time.time())
         min_acceptable_time = now - r.time
         if len(rows) < r.min_occurences - 1:
