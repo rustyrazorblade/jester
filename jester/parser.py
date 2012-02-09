@@ -122,11 +122,22 @@ class Event(BaseInput):
     # is a rule
     def check(self, r):
         assert isinstance(r, Rule) 
+
+        if r.event != self.event:
+            info("rule {0} doesn't apply".format(r.name))
+            return False
+
+        # use case covers when something should always be triggered
+        if r.min_occurences == 1:
+            return True
+
         redis = get_redis()
-        rows = redis.lrange(self.event_stream, 0, r.min_occurences)
+        
+        rows = redis.lrange(self.event_stream, 0, r.min_occurences )
         now = int(time.time())
         min_acceptable_time = now - r.time
         if len(rows) < r.min_occurences - 1:
+            info("Failed to meet min_occurances of {0}".format(r.min_occurances))
             return False
         for tmp in rows:
             i = json.loads(tmp)
