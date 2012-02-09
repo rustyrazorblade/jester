@@ -129,17 +129,17 @@ class Event(BaseInput):
             return False
 
         # use case covers when something should always be triggered
-        if r.min_occurences == 1:
+        if r.min_occurrences == 1:
             return True
 
         redis = get_redis()
         
         # we pull 1 less than the min because we haven't pushed this event into the stream yet
-        rows = redis.lrange(self.event_stream, 0, r.min_occurences - 1)
+        rows = redis.lrange(self.event_stream, 0, r.min_occurrences - 1)
         now = int(time.time())
         min_acceptable_time = now - r.time
-        if len(rows) < r.min_occurences - 1:
-            info("Failed to meet min_occurences of {0}".format(r.min_occurences))
+        if len(rows) < r.min_occurrences - 1:
+            info("Failed to meet min_occurrences of {0}".format(r.min_occurrences))
             return False
         for tmp in rows:
             i = json.loads(tmp)
@@ -211,7 +211,7 @@ class Parser(object):
 
     #predicates
     predicate = when.suppress() + event_name('predicate_event') + \
-                occurs + Word(nums)('min_occurences') + \
+                occurs + Word(nums)('min_occurrences') + \
                 times + in_ + Word(nums)('timeframe_num') + \
                 timeframe('timeframe')
 
@@ -330,15 +330,15 @@ class RuleList(object):
 
 
 class Rule(object):
-    def __init__(self, rule, name, event, min_occurences = 0, time = 0):
+    def __init__(self, rule, name, event, min_occurrences = 0, time = 0):
         '''
         rule -> original string rule that came in
-        min_occurences -> when event occurs <min_occurences> times in <time>
+        min_occurrences -> when event occurs <min_occurrences> times in <time>
         '''
         self.rule = rule
         self.name = name
         self.event = event
-        self.min_occurences = int(min_occurences)
+        self.min_occurrences = int(min_occurrences)
         self.time = time
 
     def evaluate(self):
@@ -349,8 +349,8 @@ class Rule(object):
 
 class PointsRule(Rule):
     """docstring for CreatePointsRule"""
-    def __init__(self, rule, name, event, min_occurences, time, points):
-        super(PointsRule, self).__init__(rule, name, event, min_occurences, time)
+    def __init__(self, rule, name, event, min_occurrences, time, points):
+        super(PointsRule, self).__init__(rule, name, event, min_occurrences, time)
         self.points = points
     def apply(self, user):
         tmp = PointsAward(user, self.points)
@@ -358,8 +358,8 @@ class PointsRule(Rule):
 
 class BadgeRule(Rule):
     """docstring for CreateBadgeRule"""
-    def __init__(self, rule, name, event, min_occurences, time, badge):
-        super(BadgeRule, self).__init__(rule, name, event, min_occurences, time, )
+    def __init__(self, rule, name, event, min_occurrences, time, badge):
+        super(BadgeRule, self).__init__(rule, name, event, min_occurrences, time, )
         self.badge = badge
     def apply(self,user):
         tmp = BadgeAward(user, self.badge)
