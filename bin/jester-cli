@@ -3,6 +3,7 @@
 import socket
 import re
 import sys
+from pprint import pprint
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(('localhost', 8888))
@@ -14,7 +15,8 @@ def send_and_print(input):
     input = input.strip()
     s.send(input + "\n")
     result = s.recv(4096)
-    print result
+    result = result.strip()
+    pprint(result)
 
 def source(filename):
     print "Loading from " + filename
