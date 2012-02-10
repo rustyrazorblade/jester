@@ -1,4 +1,3 @@
-import ipdb
 
 from logging import info
 from tornado.testing import LogTrapTestCase
@@ -108,17 +107,23 @@ class RuleEvaluationTest(LogTrapTestCase):
         assert rules.has_key('p')
 
         result = Parser.parse('eval game_play for jhaddad').evaluate()
-        assert result == {'awards': [{'points': 5}]}
+        awards = result['awards']
 
     def test_points_with_when(self):
-        Parser.parse("create rule p on game_play award 5 points when game_play occurs 3 times in 1 hour").evaluate()
+        
+        Parser.parse("create rule p on game_play award 5 points when game_play occurs 2 times in 1 hour").evaluate()
         rules = Parser.parse('show rules').evaluate()
 
         assert len(rules) == 1
         assert rules.has_key('p')
-
-        result = Parser.parse('eval game_play for jhaddad').evaluate()
-        assert len(result['awards']) == 0
+        
+        for i in range(5):
+            info("round {0}".format(i))
+            result = Parser.parse('eval game_play for jhaddad').evaluate()
+            assert len(result['awards']) == 0
+            
+            result = Parser.parse('eval game_play for jhaddad').evaluate()
+            assert len(result['awards']) == 1
 
 
 

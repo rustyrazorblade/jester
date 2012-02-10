@@ -130,12 +130,14 @@ class Event(BaseInput):
 
         # use case covers when something should always be triggered
         if r.min_occurrences == 1:
+            info("true")
             return True
 
         redis = get_redis()
         
         # we pull 1 less than the min because we haven't pushed this event into the stream yet
-        rows = redis.lrange(self.event_stream, 0, r.min_occurrences - 1)
+        # last param on redis.lrange is the end, not the limit, and is zero based
+        rows = redis.lrange(self.event_stream, 0, r.min_occurrences - 2)
         now = int(time.time())
         min_acceptable_time = now - r.time
         if len(rows) < r.min_occurrences - 1:
@@ -145,7 +147,12 @@ class Event(BaseInput):
             i = json.loads(tmp)
             if i['time'] < min_acceptable_time:
                 return False
-        
+            if filter( lambda(x): x['name'] == r.name, i['awards']):
+                #info(rows)
+                info("Rejecting since it was previously found")
+                return False
+
+        info("Rules satisfied")
         return True
 
     def save_to_stream(self):
@@ -354,7 +361,7 @@ class PointsRule(Rule):
         self.points = points
     def apply(self, user):
         tmp = PointsAward(user, self.points)
-        return {'points':tmp.points}
+        return {'points':tmp.points, 'name':self.name}
 
 class BadgeRule(Rule):
     """docstring for CreateBadgeRule"""
@@ -363,7 +370,7 @@ class BadgeRule(Rule):
         self.badge = badge
     def apply(self,user):
         tmp = BadgeAward(user, self.badge)
-        return {'badge':tmp.badge}
+        return {'badge':tmp.badge, 'name':self.name}
 
 
 def get_redis():
