@@ -195,6 +195,7 @@ class AwardHistory(BaseInput):
     def __init__(self, user, page = 1, perpage=50):
         self.user, page, perpage = user,page, perpage
     def evaluate(self):
+        r = get_redis()
         return {}
 
         
