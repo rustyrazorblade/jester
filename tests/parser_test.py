@@ -96,6 +96,10 @@ class EventHistoryTest(LogTrapTestCase):
         Parser.event_history.parseString(test_str)
         Parser.parse(test_str)
 
+class ParseStatsTest(LogTrapTestCase):
+    def test_stats(self):
+        Parser.parse("stats for jhaddad")
+
 class RuleEvaluationTest(LogTrapTestCase):
     def setUp(self):
         FlushDB().evaluate()
@@ -108,6 +112,13 @@ class RuleEvaluationTest(LogTrapTestCase):
 
         result = Parser.parse('eval game_play for jhaddad').evaluate()
         awards = result['awards']
+
+        stats = Parser.parse('stats for jhaddad').evaluate()
+        
+        points = stats['points']
+
+        info("points:{0}".format(points))
+        assert points == 5
 
     def test_points_with_when(self):
         

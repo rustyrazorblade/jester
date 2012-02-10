@@ -1,3 +1,4 @@
+import ipdb
 
 from redis import Redis
 from logging import info
@@ -42,6 +43,15 @@ class FlushDB(BaseInput):
         r.flushdb()
         RuleList.rules = {}
         return {'flushed':'ok'}
+
+class Stats(BaseInput):
+    def __init__(self, user):
+        self.user = user
+    def evaluate(self):
+        r = get_redis()
+        key = 'user_points:' + self.user
+        points = int(r.get(key))
+        return {"points":points}
 
 # this the raw points award
 # award 5 points to user 10
@@ -198,11 +208,13 @@ class Parser(object):
     history = Keyword('history', caseless=True)
     event = Keyword('event', caseless=True)
     flushdb = Keyword('flushdb', caseless=True)
+    stats = Keyword('stats', caseless=True)
 
     create_rule = (create + rule).setResultsName('create_rule')
     create_rule_name = create_rule + rule_name('rule_name')
 
     delete_rule = (delete + rule).setResultsName('delete_rule') + rule_name('rule_name')
+    stats_rule = stats + for_ + userid('stats')
 
     # keywords - predicates
     when = Keyword('when', caseless=True)
@@ -242,7 +254,7 @@ class Parser(object):
 
     ## final
     command = LineStart() + \
-              (eval_query | rule | raw_award | award_history | event_history | show_rules | delete_rule | flushdb('flushdb') ) + \
+              (eval_query | rule | raw_award | award_history | event_history | show_rules | delete_rule | stats_rule | flushdb('flushdb') ) + \
               LineEnd()
 
     @classmethod
@@ -278,7 +290,10 @@ class Parser(object):
             return AwardHistory(tmp['userid'])
         if tmp == {'flushdb': 'flushdb'}:
             return FlushDB()
+        if tmp.has_key('stats'):
+            return Stats(tmp['stats'])
 
+        ipdb.set_trace() ############################## Breakpoint ##############################
         raise ParseException(s)
 
     @classmethod
@@ -361,6 +376,7 @@ class PointsRule(Rule):
         self.points = points
     def apply(self, user):
         tmp = PointsAward(user, self.points)
+        tmp.evaluate()
         return {'points':tmp.points, 'name':self.name}
 
 class BadgeRule(Rule):
@@ -370,6 +386,7 @@ class BadgeRule(Rule):
         self.badge = badge
     def apply(self,user):
         tmp = BadgeAward(user, self.badge)
+        tmp.evaluate()
         return {'badge':tmp.badge, 'name':self.name}
 
 
