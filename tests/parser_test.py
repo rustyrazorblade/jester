@@ -3,6 +3,14 @@ from logging import info
 from tornado.testing import LogTrapTestCase
 from jester.parser import *
 
+class BaseParserTest(LogTrapTestCase):
+    def setUp(self):
+        FlushDB().evaluate()
+
+    # shorthand to parse, eval, and return a string
+    def e(self, s):
+        return Parser.parse(s).evaluate()
+
 class ParserTest(LogTrapTestCase):
 
     def test_create_rule_partial(self):
@@ -138,4 +146,17 @@ class RuleEvaluationTest(LogTrapTestCase):
 
 
 
-    
+
+class BadgeStatsTest(BaseParserTest):
+    def test_badge_stats(self):
+        self.e("create rule a on game_play award badge blah")
+        self.e("create rule b on game_play award badge blahb")
+
+        self.e('eval game_play for jhaddad')
+        tmp = self.e('stats for jhaddad')
+        assert tmp.has_key('badges')
+        badges = tmp['badges']
+
+        assert badges['blah'] == 1
+        assert badges['blahb'] == 1
+

@@ -50,8 +50,21 @@ class Stats(BaseInput):
     def evaluate(self):
         r = get_redis()
         key = 'user_points:' + self.user
-        points = int(r.get(key))
-        return {"points":points}
+
+        try:
+            points = int(r.get(key))
+        except:
+            points = 0
+
+        key = 'user_badges:' + self.user
+        badges = r.hgetall(key)
+
+        result = {}
+        for i in badges:
+            result[i] = int(badges[i])
+
+
+        return {"points":points, "badges":result}
 
 # this the raw points award
 # award 5 points to user 10
@@ -224,7 +237,7 @@ class Parser(object):
 
     # award 
     award_points = Word(nums)('points') + points.suppress()
-    award_badge = badge + Word(alphas + "-_")('badge')
+    award_badge = badge + Word(alphanums + "-_")('badge')
     points_or_badge = award_points ^ award_badge
     award_name = Word(alphanums + "-_")
 
