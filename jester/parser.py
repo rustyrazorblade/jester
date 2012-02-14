@@ -12,6 +12,8 @@ from pyparsing import Word, alphas, nums, alphanums, \
 logging.basicConfig(level=logging.INFO)
 
 class ParseException(Exception): pass
+class RuleAlreadyExistsException(Exception): pass
+
 
 
 # these are all actions that can be taken
@@ -339,6 +341,9 @@ class RuleList(object):
     @classmethod
     def add(cls, rule):
         name = rule.name
+
+        if cls.rules.has_key(name): raise RuleAlreadyExistsException(name)
+
         cls.rules[name] = rule
 
         # save to redis
@@ -366,6 +371,7 @@ class RuleList(object):
 
 
 class Rule(object):
+    # base rule object
     def __init__(self, rule, name, event, min_occurrences = 0, time = 0):
         '''
         rule -> original string rule that came in

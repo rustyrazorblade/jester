@@ -160,3 +160,10 @@ class BadgeStatsTest(BaseParserTest):
         assert badges['blah'] == 1
         assert badges['blahb'] == 1
 
+
+class DuplicateNameTest(BaseParserTest):
+    def test_dupe_name(self):
+        self.e("create rule a on game_play award 5 points")
+        with self.assertRaises(RuleAlreadyExistsException):
+            self.e("create rule a on game_play award 5 points")
+
