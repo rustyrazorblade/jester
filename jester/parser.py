@@ -101,6 +101,8 @@ class PointsAward(RawAward):
         r = get_redis()
         k = 'user_points:' + self.user
         result = r.incr(k, self.points)
+        # update the global leaderboard
+        r.zadd('leaderboard', self.user, result)
         return dict(points=result)
 
 class BadgeAward(RawAward):
