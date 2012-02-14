@@ -6,9 +6,16 @@ import sys
 from pprint import pprint
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect(('localhost', 8888))
+
+host = 'localhost'
+port = 8888
+
+s.connect((host, port))
 
 input = ""
+
+prompt = "jester@{0}:{1}> ".format(host, port)
+
 c = re.compile('source (.*)')
 
 def send_and_print(input):
@@ -30,7 +37,8 @@ if len(sys.argv) > 1:
     sys.exit()
 
 while True:
-    input = raw_input("> ")
+
+    input = raw_input(prompt)
     if input in ['quit','exit']:
         break
 
