@@ -1,3 +1,5 @@
+Jester is a server and language for defining gaming rules cooresponding to events in a system.
+
 Please see the wiki for details.
 
 INSTALL
@@ -8,7 +10,20 @@ Requirements:
     supervisor
     tornado
 
+USAGE
+
+To start:
+
+    bin/jester
+
+To test (with auto reload):
+    
+    bin/test
+
+Simple command line client:
+
+    bin/jester-cli
 
 
-
+Currently everything needs to be on the same server - config file to move that off in the works.  
 
