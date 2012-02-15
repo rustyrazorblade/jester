@@ -321,6 +321,6 @@ class BadgeRule(Rule):
         tmp.evaluate()
         return {'badge':tmp.badge, 'name':self.name}
 
-
+r = Redis()
 def get_redis():
-    return Redis()
+    return r 

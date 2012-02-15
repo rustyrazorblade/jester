@@ -4,7 +4,11 @@ INSTALL
 
 Requirements:
     pyparsing
-    redis
+    redis (python module and redis server)
     supervisor
+    tornado
+
+
+
 
 
