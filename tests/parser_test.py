@@ -167,3 +167,14 @@ class DuplicateNameTest(BaseParserTest):
         with self.assertRaises(RuleAlreadyExistsException):
             self.e("create rule a on game_play award 5 points")
 
+class CreateLevelTest(BaseParserTest):
+    def test_create_level(self):
+        self.e('create level "Rookie" at 0 points')
+        self.e('create level "The Duke" at 10 points')
+
+        tmp = self.e("stats for 1")
+        assert tmp['points'] == 0
+
+
+
+

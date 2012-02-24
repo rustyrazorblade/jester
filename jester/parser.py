@@ -7,7 +7,7 @@ import json
 import time
 
 from pyparsing import Word, alphas, nums, alphanums, \
-        Keyword, LineEnd, Optional, oneOf, LineStart
+        Keyword, LineEnd, Optional, oneOf, LineStart, quotedString
 
 from jester.inputs import *
 
@@ -137,6 +137,8 @@ class Parser(object):
     event = Keyword('event', caseless=True)
     flushdb = Keyword('flushdb', caseless=True)
     stats = Keyword('stats', caseless=True)
+    level = Keyword('level', caseless=True)
+    at = Keyword('at', caseless=True)
 
     create_rule = (create + rule).setResultsName('create_rule')
     create_rule_name = create_rule + rule_name('rule_name')
@@ -172,6 +174,14 @@ class Parser(object):
     # shw rules
     show_rules = (show + rules).setResultsName('show_rules')
     
+    # levels
+    level_name = quotedString | Word(alphanums + "_-")
+    create_level = (create + level).setResultsName('create_level') + \
+                    level_name('level_name') + at + \
+                    Word(nums)('points') + points.suppress()
+    # end levels
+
+
     # push event in: eval <event name> for <user>
     # example: eval game_play for jhaddad
     eval_query = eval_('eval') + event_name('event_name') + for_ + userid('userid')
@@ -182,7 +192,9 @@ class Parser(object):
 
     ## final
     command = LineStart() + \
-              (eval_query | rule | raw_award | award_history | event_history | show_rules | delete_rule | stats_rule | flushdb('flushdb') ) + \
+              (eval_query | rule | raw_award | award_history | event_history | \
+                 show_rules | delete_rule | stats_rule | create_level |   \
+                 flushdb('flushdb') ) + \
               LineEnd()
 
     @classmethod
@@ -218,6 +230,9 @@ class Parser(object):
             return AwardHistory(tmp['userid'])
         if tmp == {'flushdb': 'flushdb'}:
             return FlushDB()
+        if 'create_level' in tmp:
+            return CreateLevel(tmp['level_name'], tmp['points'])
+
         if tmp.has_key('stats'):
             return Stats(tmp['stats'])
 
