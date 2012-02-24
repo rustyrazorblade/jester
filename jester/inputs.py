@@ -11,13 +11,14 @@ class BaseInput(object):
     def evaluate(self):
         raise NotImplementedException()
 
-class CreateLevel(object):
+class CreateLevel(BaseInput):
     def __init__(self, name, points):
         self.name, self.points = name, points
 
     def evaluate(self):
         r = get_redis()
         r.hset('levels', self.name, self.points)
+        return {"result":"ok"}
 
 class Stats(BaseInput):
     def __init__(self, user):
