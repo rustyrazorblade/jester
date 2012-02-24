@@ -1,0 +1,29 @@
+import ipdb
+
+from tornado.testing import LogTrapTestCase
+from jester.levels import Levels
+
+class LevelsTest(LogTrapTestCase):
+    def test_create(self):
+        Levels.create('start', 0)
+        Levels.create('second', 10)
+        Levels.create('third', 20)
+        Levels.create('four', 30)
+        assert len(Levels.levels) == 4
+        
+        tmp = Levels.get_level_by_points(15)
+        assert tmp  == 'second'
+        
+        tmp = Levels.get_level_by_points(20)
+        assert tmp  == 'third'
+
+        tmp = Levels.get_level_by_points(30)
+        assert tmp  == 'four'
+
+        tmp = Levels.get_level_by_points(0)
+        assert tmp  == 'start'
+
+        tmp = Levels.get_level_by_points(-1)
+        assert tmp  == None
+
+
