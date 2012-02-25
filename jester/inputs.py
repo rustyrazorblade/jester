@@ -10,7 +10,7 @@ class NotImplementedException(Exception): pass
 class BaseInput(object):
     def evaluate(self):
         raise NotImplementedException()
-
+# levels
 class CreateLevel(BaseInput):
     def __init__(self, name, points):
         self.name, self.points = name, points
@@ -19,6 +19,13 @@ class CreateLevel(BaseInput):
         r = get_redis()
         r.hset('levels', self.name, self.points)
         return {"result":"ok"}
+
+class GetLevels(BaseInput):
+    def evaluate(self):
+        return {"levels":[]}
+
+
+# end levels
 
 class Stats(BaseInput):
     def __init__(self, user):

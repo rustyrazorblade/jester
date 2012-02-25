@@ -13,6 +13,7 @@ class Levels(object):
     def create(cls, name, points):
         """docstring for create"""
         cls.levels[name] = points
+        cls.redis.hset('levels', name, points)
         
 
     @classmethod
@@ -27,10 +28,19 @@ class Levels(object):
                 current = k
 
         return current
+
     @classmethod
     def load(cls):
         r = cls.redis
         cls.levels = r.hgetall('levels')
+
+    @classmethod
+    def flush(cls):
+        cls.redis.delete('levels')
+
+    @classmethod
+    def get_levels(cls):
+        return cls.levels
 
         
 
