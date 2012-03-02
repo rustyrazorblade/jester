@@ -7,7 +7,7 @@ import json
 import time
 
 from pyparsing import Word, alphas, nums, alphanums, \
-        Keyword, LineEnd, Optional, oneOf, LineStart, quotedString
+        Keyword, LineEnd, Optional, oneOf, LineStart, quotedString, removeQuotes
 
 from jester.inputs import *
 
@@ -175,10 +175,12 @@ class Parser(object):
     show_rules = (show + rules).setResultsName('show_rules')
     
     # levels
-    level_name = quotedString | Word(alphanums + "_-")
+    level_name = quotedString.setParseAction(removeQuotes) | Word(alphanums + "_-")
     create_level = (create + level).setResultsName('create_level') + \
                     level_name('level_name') + at + \
                     Word(nums)('points') + points.suppress()
+    show_levels = (show + Keyword('levels')).setResultsName('show_levels')
+
     # end levels
 
 
@@ -193,7 +195,7 @@ class Parser(object):
     ## final
     command = LineStart() + \
               (eval_query | rule | raw_award | award_history | event_history | \
-                 show_rules | delete_rule | stats_rule | create_level |   \
+                 show_rules | delete_rule | stats_rule | create_level | show_levels |  \
                  flushdb('flushdb') ) + \
               LineEnd()
 
@@ -230,13 +232,18 @@ class Parser(object):
             return AwardHistory(tmp['userid'])
         if tmp == {'flushdb': 'flushdb'}:
             return FlushDB()
+
+        # levels
         if 'create_level' in tmp:
+            ipdb.set_trace() ############################## Breakpoint ##############################
             return CreateLevel(tmp['level_name'], tmp['points'])
+        if 'show_levels' in tmp:
+            return ShowLevels()
+        # end levels
 
         if tmp.has_key('stats'):
             return Stats(tmp['stats'])
 
-        ipdb.set_trace() ############################## Breakpoint ##############################
         raise ParseException(s)
 
     @classmethod

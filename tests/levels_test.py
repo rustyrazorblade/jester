@@ -28,5 +28,6 @@ class LevelsTest(LogTrapTestCase):
         assert tmp  == None
 
         levels = Levels.get_levels()
+        assert len(levels) == 4
 
     

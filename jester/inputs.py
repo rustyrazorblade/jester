@@ -3,6 +3,8 @@ from redis import Redis
 import time
 import json
 
+from jester.levels import Levels
+
 # these are all actions that can be taken
 class NotImplementedException(Exception): pass
 
@@ -16,13 +18,13 @@ class CreateLevel(BaseInput):
         self.name, self.points = name, points
 
     def evaluate(self):
-        r = get_redis()
-        r.hset('levels', self.name, self.points)
+        Levels.create(self.name, self.points)
         return {"result":"ok"}
 
-class GetLevels(BaseInput):
+class ShowLevels(BaseInput):
     def evaluate(self):
-        return {"levels":[]}
+        levels = Levels.get_levels()
+        return {"levels":levels}
 
 
 # end levels
@@ -33,11 +35,11 @@ class Stats(BaseInput):
     def evaluate(self):
         r = get_redis()
         key = 'user_points:' + self.user
-
         try:
             points = int(r.get(key))
         except:
             points = 0
+        level = Levels.get_level_by_points( points )
 
         key = 'user_badges:' + self.user
         badges = r.hgetall(key)
@@ -47,7 +49,7 @@ class Stats(BaseInput):
             result[i] = int(badges[i])
 
 
-        return {"points":points, "badges":result}
+        return {"points":points, "badges":result, "level":level}
 
 
 # this the raw points award
