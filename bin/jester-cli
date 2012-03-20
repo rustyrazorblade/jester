@@ -3,6 +3,7 @@
 import socket
 import re
 import sys
+import json
 from pprint import pprint
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -23,6 +24,7 @@ def send_and_print(input):
     s.send(input + "\n")
     result = s.recv(4096)
     result = result.strip()
+    result = json.loads(result)
     pprint(result)
 
 def source(filename):

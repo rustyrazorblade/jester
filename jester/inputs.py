@@ -24,7 +24,8 @@ class CreateLevel(BaseInput):
 class ShowLevels(BaseInput):
     def evaluate(self):
         levels = Levels.get_levels()
-        return {"levels":levels}
+        return levels
+        #return {"levels":levels}
 
 
 # end levels

@@ -7,6 +7,12 @@ class LevelsTest(LogTrapTestCase):
 
         Levels.flush()
         Levels.create('start', 0)
+        
+        tmp = Levels.get_level_by_points(5)
+
+        assert tmp == 'start'
+
+
         Levels.create('second', 10)
         Levels.create('third', 20)
         Levels.create('four', 30)

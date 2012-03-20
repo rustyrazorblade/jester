@@ -8,6 +8,9 @@ def get_redis():
 class Levels(object):
     levels = {}
     redis = get_redis()
+    
+    def __init__(self, redis):
+        pass
 
     @classmethod
     def create(cls, name, points):
