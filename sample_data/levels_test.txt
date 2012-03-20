@@ -1,0 +1,2 @@
+create level rookie at 0 points
+stats for 1

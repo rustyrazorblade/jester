@@ -15,12 +15,13 @@ class Levels(object):
     @classmethod
     def create(cls, name, points):
         """docstring for create"""
-        cls.levels[name] = points
+        cls.levels[name] = int(points)
         cls.redis.hset('levels', name, points)
         
 
     @classmethod
     def get_level_by_points(cls, points):
+        points = int(points)
         current = None
 
         for k,v in cls.levels.iteritems():
