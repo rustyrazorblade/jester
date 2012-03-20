@@ -179,6 +179,7 @@ class Parser(object):
                     level_name('level_name') + at + \
                     Word(nums)('points') + points.suppress()
     show_levels = (show + Keyword('levels')).setResultsName('show_levels')
+    delete_level = (delete + level).setResultsName('delete_level') + level_name('level_name')
 
     # end levels
 
@@ -194,7 +195,7 @@ class Parser(object):
     ## final
     command = LineStart() + \
               (eval_query | rule | raw_award | award_history | event_history | \
-                 show_rules | delete_rule | stats_rule | create_level | show_levels |  \
+                 show_rules | delete_rule | stats_rule | create_level | show_levels | delete_level | \
                  flushdb('flushdb') ) + \
               LineEnd()
 
@@ -237,6 +238,8 @@ class Parser(object):
             return CreateLevel(tmp['level_name'], tmp['points'])
         if 'show_levels' in tmp:
             return ShowLevels()
+        if 'delete_level' in tmp:
+            return DeleteLevel(tmp['level_name'])
         # end levels
 
         if tmp.has_key('stats'):

@@ -46,6 +46,14 @@ class Levels(object):
     def get_levels(cls):
         return cls.levels
 
-        
+    @classmethod
+    def delete(cls, name):
+        cls.redis.hdel('levels', name)
+        try:
+            del cls.levels['name']
+        except:
+            pass
+
+
 
 

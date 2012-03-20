@@ -175,6 +175,10 @@ class CreateLevelTest(BaseParserTest):
         tmp = self.e("stats for 1")
         assert tmp['points'] == 0
 
+        self.e('delete level "Rookie"')
+        
 
+
+        
 
 

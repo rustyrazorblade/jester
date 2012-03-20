@@ -26,7 +26,12 @@ class ShowLevels(BaseInput):
         levels = Levels.get_levels()
         return levels
         #return {"levels":levels}
-
+class DeleteLevel(BaseInput):
+    def __init__(self, name):
+        self.name = name
+    def evaluate(self):
+        r = Levels.delete(self.name)
+        return {"result": "ok"}
 
 # end levels
 
