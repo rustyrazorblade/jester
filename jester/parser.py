@@ -1,4 +1,3 @@
-import ipdb
 
 from redis import Redis
 from logging import info
@@ -235,7 +234,6 @@ class Parser(object):
 
         # levels
         if 'create_level' in tmp:
-            ipdb.set_trace() ############################## Breakpoint ##############################
             return CreateLevel(tmp['level_name'], tmp['points'])
         if 'show_levels' in tmp:
             return ShowLevels()
