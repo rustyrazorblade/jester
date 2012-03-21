@@ -41,6 +41,6 @@ class Connection(object):
 def run():
     RuleList.load_rules()
     server = JesterServer()
-    server.listen(8888)
+    server.listen(8844)
     IOLoop.instance().start()
 
